@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 from __future__ import print_function, unicode_literals
 
 import collections
@@ -277,7 +275,6 @@ def add_translations_wb(ws, folders, locales, key_locale, title):
     ws.row_dimensions[top].height = 40
 
     # Conditional formatting #################################################
-
     for i in range(len(locales)):
         from_cell = coord(left + 4 + i * 2, top + 1)
         to_cell = coord(left + 4 + i * 2, top + 1 + len(entries))
@@ -297,7 +294,3 @@ def add_translations_wb(ws, folders, locales, key_locale, title):
     # Freeze and protect #####################################################
     ws.freeze_panes = ws[coord(left + 4, top + 1)]
     ws.protection.enable()
-
-
-if __name__ == '__main__':
-    main()

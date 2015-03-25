@@ -24,7 +24,3 @@ def main(folders, wrapwidth):
         for path in get_pofile_paths(f):
             pofile = polib.pofile(path, wrapwidth=wrapwidth)
             pofile.save()
-
-
-if __name__ == '__main__':
-    main()

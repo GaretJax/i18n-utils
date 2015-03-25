@@ -1,0 +1,4 @@
+click==3.3
+jdcal==1.0
+openpyxl==2.2.0b1
+polib==1.0.6

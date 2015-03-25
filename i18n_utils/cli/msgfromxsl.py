@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 from __future__ import print_function, unicode_literals
 
 import os
@@ -181,7 +179,7 @@ def find_entry(pofiles, ctx, key, plr, trans):
 def handle_entry(entry, msgstr, ctx, key, trans, fuzzy, hide_ok):
     trans_norm = msgstr.normalize_whitespace(trans)
 
-    if not trans or trans == msgstr.get().strip():
+    if not trans or trans.strip() == msgstr.get().strip():
         # Already up to date
         if not hide_ok:
             click.secho('The entry "{}" is already up to date.'.format(key),
@@ -202,7 +200,7 @@ def handle_entry(entry, msgstr, ctx, key, trans, fuzzy, hide_ok):
         msgstr.set(trans_norm)
         if 'fuzzy' in entry.flags and not fuzzy:
             entry.flags.remove('fuzzy')
-        #entry.obsolete = False
+        # entry.obsolete = False
         return
 
     # Entry has been translated but needs update
@@ -214,7 +212,3 @@ def handle_entry(entry, msgstr, ctx, key, trans, fuzzy, hide_ok):
     click.secho(' NEW: "{}"'.format(trans_norm))
     msgstr.set(trans)
     hr()
-
-
-if __name__ == '__main__':
-    main()

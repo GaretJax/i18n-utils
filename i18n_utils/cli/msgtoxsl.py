@@ -8,25 +8,23 @@ import click
 from openpyxl import Workbook
 from openpyxl.cell import get_column_letter
 
-from i18n_utils import get_pofiles, styles
+from i18n_utils import styles, params
 
 
 @click.command()
 @click.option('--locale', '-l', 'locales', multiple=True)
+@click.option('--key-locale', '-k', default='en')
+@click.option('--title', '-t', default='My project')
 @click.argument('out', type=click.Path(exists=False, dir_okay=False,
                                        writable=True))
-@click.argument('folders', nargs=-1,
-                type=click.Path(exists=True, file_okay=False, readable=True))
-def main(locales, folders, out):
+@click.argument('folders', nargs=-1, type=params.LocaleFolderParamType())
+def main(locales, key_locale, title, folders, out):
     wb = Workbook()
-    key_locale = 'en'
 
-    # TODO: Create the instructions/stats
+    if not locales:
+        locales = list(folders[0].locales())
 
-    # Add translations
-    add_translations_wb(wb.active, folders, locales, key_locale,
-                        'OCH Community')
-
+    add_translations_wb(wb.active, folders, locales, key_locale, title)
     wb.save(out)
 
 
@@ -141,7 +139,7 @@ def add_translations_wb(ws, folders, locales, key_locale, title):
     entries = collections.defaultdict(lambda: [None] * len(locales))
 
     for folder in folders:
-        po_files = [(locale, po) for locale, po in get_pofiles(folder)
+        po_files = [(locale, po) for locale, po in folder.pofiles()
                     if locale in locales]
 
         for locale, po in po_files:

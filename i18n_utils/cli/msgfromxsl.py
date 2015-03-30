@@ -118,9 +118,21 @@ def main(workbook, locale_folders, language, key_col, trans_col, sheet,
             # This row can be safely ignored
             continue
 
-        entry, msgstr = find_entry(pofiles, ctx, key, plr, trans)
+        entry, msgstr, read_only = find_entry(pofiles, ctx, key, plr, trans)
         if entry:
             handle_entry(entry, msgstr, ctx, key, trans, fuzzy, hide_ok)
+        elif plr == 's':
+            # TODO: Support adding pluralized entries as well
+            if click.confirm('Do you want to add it to the file?'):
+                entry = polib.POEntry(
+                    msgid=key or '',
+                    msgstr=trans or '',
+                    msgctx=ctx or None,
+                )
+                for read_only, po in pofiles:
+                    if not read_only:
+                        po.append(entry)
+                        break
 
     if not pretend:
         for read_only, po in pofiles:
@@ -163,7 +175,7 @@ def find_entry(pofiles, ctx, key, plr, trans):
         # TODO: How do we want to handle this?
         key = '{}:{}'.format(ctx, key) if ctx else key
         click.secho('The entry "{}" was not found.'.format(key), fg='red')
-        return None, None
+        return None, None, False
 
     if read_only:
         if trans != msgstr.get():
@@ -171,9 +183,9 @@ def find_entry(pofiles, ctx, key, plr, trans):
             click.secho('The entry "{}" has been translated as "{}" in "{}" '
                         'but the file is marked as read-only.'
                         .format(key, msgstr.get(), po.fpath), fg='red')
-        return None, None
+        return None, None, True
 
-    return entry, msgstr
+    return entry, msgstr, False
 
 
 def handle_entry(entry, msgstr, ctx, key, trans, fuzzy, hide_ok):

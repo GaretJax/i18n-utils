@@ -1,26 +1,25 @@
-import os
-import glob
-
 import click
 
-import polib
-
-
-def get_pofile_paths(folder):
-    po_file = os.path.join(folder, '*', 'LC_MESSAGES', '*.po')
-    for path in glob.glob(po_file):
-        yield path
+from i18n_utils import params, normalization
 
 
 @click.command()
-@click.option('--wrap-width', '-w', 'wrapwidth', default=78)
-@click.argument('folders', nargs=-1)
+@click.option('--wrap-width', '-w', 'wrapwidth',
+              default=normalization.DEFAULT_WRAPPING_WIDTH)
+@click.argument('folders', nargs=-1, type=params.LocaleFolderParamType())
 def main(folders, wrapwidth):
-    """Rewraps the po files found in the given locale folders.
+    """Normalizes the PO files in the given locale folders.
 
-    Useful to remove unecessary noise from source commits.
+    Useful to remove unecessary noise from source commits. The normalization
+    process applies the following operations:
+
+    * The lines are rewrapped to the given wrapwidth
+    * Sort the entries in the file by their `msgstr` (obsoleted entries are
+      sorted in line with current entries and not grouped together in the end)
+    * Each occurrence is put on a line by itself, even if the wrapwidth would
+      allow for more to be put on a single line
     """
     for f in folders:
-        for path in get_pofile_paths(f):
-            pofile = polib.pofile(path, wrapwidth=wrapwidth)
+        for locale, pofile in f.pofiles(
+                wrapwidth=wrapwidth, klass=normalization.NormalizedPOFile):
             pofile.save()

@@ -64,11 +64,12 @@ class MsgStr(object):
 @click.option('--sheet', '-s', type=int, default=1)
 @click.option('--pretend/--no-pretend', '-p', default=False)
 @click.option('--language', '-l')
+@click.option('--add/--no-add', '-a')
 @click.option('--hide-ok/--show-ok', default=False)
 @click.argument('workbook', type=click.Path(exists=True))
 @click.argument('locale_folders', nargs=-1)
 def main(workbook, locale_folders, language, key_col, trans_col, sheet,
-         pretend, hide_ok, ctx_col, skip):
+         pretend, hide_ok, ctx_col, skip, add):
     wb = load_workbook(workbook)
     ws = list(wb)[sheet-1]
     rows = iter(ws.iter_rows())
@@ -123,7 +124,7 @@ def main(workbook, locale_folders, language, key_col, trans_col, sheet,
             handle_entry(entry, msgstr, ctx, key, trans, fuzzy, hide_ok)
         elif plr == 's':
             # TODO: Support adding pluralized entries as well
-            if click.confirm('Do you want to add it to the file?'):
+            if add or click.confirm('Do you want to add it to the file?'):
                 entry = polib.POEntry(
                     msgid=key or '',
                     msgstr=trans or '',
